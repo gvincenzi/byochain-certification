@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>org.byochain</groupId>
+		<artifactId>byochain-parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>byochain-commons</artifactId>
+	<name>byochain-commons</name>
+	<description>Commons module</description>
+
+	<dependencies>
+		<!-- Need this for json to/from object -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+    		<artifactId>jackson-annotations</artifactId>
+		</dependency>
+		
+		<!-- Need this to generate a password -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		    <version>3.0</version>
+		</dependency>
+		
+		<!-- Need this to generate a password -->
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-crypto</artifactId>
+		</dependency>
+		
+	</dependencies>
+</project>
