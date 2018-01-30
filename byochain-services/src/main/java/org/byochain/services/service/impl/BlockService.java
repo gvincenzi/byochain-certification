@@ -151,7 +151,7 @@ public abstract class BlockService implements IBlockService {
 				result = false;
 			}
 			
-			if(i==blocks.size()-1 && currentBlock.getValidators().size()<requiredValidationNumber && !currentBlock.getMiner().equals(validator) && !currentBlock.getValidators().contains(validator)){
+			if(currentBlock.getValidators().size()<requiredValidationNumber && !currentBlock.getMiner().equals(validator) && !currentBlock.getValidators().contains(validator)){
 				currentBlock.getValidators().add(validator);
 				blockRepository.save(currentBlock);
 			}
