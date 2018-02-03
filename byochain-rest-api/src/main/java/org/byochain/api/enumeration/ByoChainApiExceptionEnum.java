@@ -22,7 +22,8 @@ public enum ByoChainApiExceptionEnum {
 	ADMIN_CONTROLLER_USER_DATA_MANDATORY("admin.controller.user.data.mandatory"),
 	ADMIN_CONTROLLER_USER_DETAILS_INVALID("admin.controller.user.details.invalid"),
 	CERTIFICATIONS_CONTROLLER_REFERER_MANDATORY("certifications.controller.referer.mandatory"),
-	CERTIFICATIONS_CONTROLLER_CHECK_REFERER("certifications.controller.check.referer");
+	CERTIFICATIONS_CONTROLLER_CHECK_REFERER("certifications.controller.check.referer"),
+	CERTIFICATIONS_CONTROLLER_BLOCKDATA_MANDATORY("certifications.controller.data.mandatory");
 
 	private static final String MESSAGE = ".message";
 	private static final String CODE = ".code";

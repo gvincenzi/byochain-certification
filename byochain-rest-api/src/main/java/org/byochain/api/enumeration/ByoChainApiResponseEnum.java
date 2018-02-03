@@ -17,6 +17,7 @@ public enum ByoChainApiResponseEnum {
 	CERTIFICATIONS_CONTROLLER_CHECK_KO("certifications.controller.check.ko"),
 	CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY("certifications.controller.check.validity"),
 	CERTIFICATIONS_CONTROLLER_CHECK_EXPIRATION("certifications.controller.check.expiration"),
+	CERTIFICATIONS_CONTROLLER_CHECK_ENABLED("certifications.controller.check.enabled"),
 	CONTROLLER_OK("controller.ok");
 
 	private static final String MESSAGE = ".message";

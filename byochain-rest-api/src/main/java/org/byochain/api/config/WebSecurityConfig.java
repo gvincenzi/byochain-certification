@@ -44,7 +44,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 		.antMatchers("/api/v1/blocks/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 		.antMatchers("/api/v1/admin/**").access("hasRole('ROLE_ADMIN')")
-		.antMatchers("/api/v1/certifications/**").permitAll()
+		.antMatchers("/api/v1/certifications/admin/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+		.antMatchers("/api/v1/certifications/token/**").permitAll()
+		.antMatchers("/api/v1/certifications/check/**").permitAll()
 		.and().httpBasic().realmName(BYOChainBasicAuthenticationEntryPoint.REALM).authenticationEntryPoint(new BYOChainBasicAuthenticationEntryPoint())
 		.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
