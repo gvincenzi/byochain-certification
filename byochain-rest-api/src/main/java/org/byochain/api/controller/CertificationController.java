@@ -76,6 +76,7 @@ public class CertificationController {
 		} else {
 			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData().getData());
 		}
+		response.setData(block.getData());
 		return response;
 	}
 	

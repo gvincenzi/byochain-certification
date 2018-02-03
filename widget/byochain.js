@@ -4,7 +4,6 @@
 	/** MODIFY SPECIFIC CERTIFICATION INFORMATIONS **/
 	
 	var hash = "f3d1d0d92fa60c8e87bd1f3c0e847334e8ab69a7524485057460fb23b36f15dc";
-	var certificationLogoURL = "certification.png";
 	var widthLogo = "100px";
 	var descriptionLogoFontFamily="Montserrat"; //Font from Google Fonts >> https://fonts.googleapis.com/css?family=Montserrat
 	var descriptionLogoFontSize="8px";
@@ -76,6 +75,7 @@
 	/** ****** starting point for your widget ******* */
 	function main() {
 		jQuery(document).ready(function($) {
+			var certificationLogoURL;
 			var token;
 			$.ajax({
 				url : certificationServer+"api/v1/certifications/token/" + hash,
@@ -94,6 +94,7 @@
 						dataType : "jsonp",
 						timeout: 15000,
 						success : function(result) {
+							certificationLogoURL = result.data.logo;
 							// console.log(result);
 							if (result.code == 1010) {
 								var styles = {fontFamily : descriptionLogoFontFamily,fontSize : descriptionLogoFontSize};
@@ -153,13 +154,6 @@
 							$('<style />')
 								.html("@import url('https://fonts.googleapis.com/css?family="+descriptionLogoFontFamily+"');")
 								.appendTo($('#byochain'));
-							$('<img />')
-								.attr('src',certificationLogoURL)
-								.attr('title',"Certification Logo")
-								.attr('alt',"Certification Logo")
-								.width(widthLogo)
-								.css('opacity','0.1')
-								.appendTo($('#byochain'));
 							$('<p />')
 								.html("<b>"
 										+ "<b>BYOChain Certification Server error</b> > " + errorThrown + " > Status : " + textStatus + " > Server URL : " + certificationServer
@@ -172,13 +166,6 @@
 						$('#byochain').css(styles);
 						$('<style />')
 							.html("@import url('https://fonts.googleapis.com/css?family="+descriptionLogoFontFamily+"');")
-							.appendTo($('#byochain'));
-						$('<img />')
-							.attr('src',certificationLogoURL)
-							.attr('title',"Certification Logo")
-							.attr('alt',"Certification Logo")
-							.width(widthLogo)
-							.css('opacity','0.1')
 							.appendTo($('#byochain'));
 						$('<p />')
 							.html("<b>"
@@ -196,13 +183,6 @@
 				$('#byochain').css(styles);
 				$('<style />')
 					.html("@import url('https://fonts.googleapis.com/css?family="+descriptionLogoFontFamily+"');")
-					.appendTo($('#byochain'));
-				$('<img />')
-					.attr('src',certificationLogoURL)
-					.attr('title',"Certification Logo")
-					.attr('alt',"Certification Logo")
-					.width(widthLogo)
-					.css('opacity','0.1')
 					.appendTo($('#byochain'));
 				$('<p />')
 					.html("<b>"
