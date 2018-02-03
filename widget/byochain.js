@@ -124,7 +124,7 @@
 											+ "</b>"
 									)
 									.appendTo($('#byochain'));
-								} else if (result.code == 1011 || result.code == 1013) {
+								} else if (result.code == 1011 || result.code == 1013 || result.code == 1015) {
 									var styles = { fontFamily : descriptionLogoFontFamily, fontSize : descriptionLogoFontSize };
 									$('#byochain').css(styles);
 									$('<style />')

@@ -1,5 +1,6 @@
 package org.byochain.api.controller;
 
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -65,16 +66,18 @@ public class CertificationController {
 		}
 		
 		if (!block.getValidated()) {
-			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY.getExceptionAfterServiceCall(messageSource, locale, block.getData().getData());
-		}
-		
-		String tokenToValidate = ((CertificationBlockService)blockService).getTemporaryToken(block);
-		
-		Boolean validation = tokenToValidate.equals(token);
-		if (validation) {
-			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_OK.getResponse(messageSource, locale, block.getData().getData());
+			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY.getResponse(messageSource, locale, block.getData().getData());
+		} else if (block.getData().getExpirationDate()!=null && block.getData().getExpirationDate().before(Calendar.getInstance(locale))) {
+			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_EXPIRATION.getResponse(messageSource, locale, block.getData().getData());
 		} else {
-			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData().getData());
+			String tokenToValidate = ((CertificationBlockService)blockService).getTemporaryToken(block);
+			
+			Boolean validation = tokenToValidate.equals(token);
+			if (validation) {
+				response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_OK.getResponse(messageSource, locale, block.getData().getData());
+			} else {
+				response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData().getData());
+			}
 		}
 		response.setData(block.getData());
 		return response;
