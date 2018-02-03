@@ -15,6 +15,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -55,8 +56,9 @@ public class Block implements Comparable<Block>{
 	/**
 	 * Column data
 	 */
-	@Column(name = "data")
-	private String data;
+	@OneToOne
+    @JoinColumn(name="block_data_id", nullable=false)
+	private BlockData data;
 	
 	/**
 	 * Column nonce
@@ -110,7 +112,7 @@ public class Block implements Comparable<Block>{
 	 * @param previousHash String
 	 * @param miner User
 	 */
-	public Block(String data, String previousHash, User miner) {
+	public Block(BlockData data, String previousHash, User miner) {
 		setPreviousHash(previousHash);
 		setData(data);
 		setTimestamp(Calendar.getInstance());
@@ -180,7 +182,7 @@ public class Block implements Comparable<Block>{
 	/**
 	 * @return the data
 	 */
-	public String getData() {
+	public BlockData getData() {
 		return data;
 	}
 
@@ -188,7 +190,7 @@ public class Block implements Comparable<Block>{
 	 * @param data
 	 *            the data to set
 	 */
-	private void setData(String data) {
+	private void setData(BlockData data) {
 		this.data = data;
 	}
 	

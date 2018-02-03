@@ -17,6 +17,7 @@ import org.byochain.api.exception.ByoChainApiException;
 import org.byochain.api.response.ByoChainApiResponse;
 import org.byochain.commons.exception.ByoChainException;
 import org.byochain.model.entity.Block;
+import org.byochain.model.entity.BlockData;
 import org.byochain.model.entity.User;
 import org.byochain.services.service.ICertificationBlockService;
 import org.byochain.services.service.impl.UserService;
@@ -75,7 +76,7 @@ public class BlockControllerTest {
         Mockito.when(blockService.getBlocks(Matchers.any())).thenReturn(null);
         Mockito.when(blockService.getBlockByHash("TestKo")).thenReturn(null);
         Mockito.when(blockService.getBlockByHash("TestOk")).thenReturn(getMockBlock());
-        Mockito.when(blockService.addBlock("TestData", getMockUser())).thenReturn(getMockBlock());
+        Mockito.when(blockService.addBlock(new BlockData(), getMockUser())).thenReturn(getMockBlock());
         Mockito.when(blockService.getAllBlocks()).thenReturn(getMockSetBlock());
         Mockito.when(userService.getUser(getMockUser().getUsername(), getMockUser().getPassword())).thenReturn(getMockUser());
         

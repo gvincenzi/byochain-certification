@@ -3,13 +3,13 @@
 	/** ****************************************** **/
 	/** MODIFY SPECIFIC CERTIFICATION INFORMATIONS **/
 	
-	var hash = "0daa29144f8d70548f70065f02159b85e6007424d623786a1a941a3c44d834fa";
+	var hash = "f3d1d0d92fa60c8e87bd1f3c0e847334e8ab69a7524485057460fb23b36f15dc";
 	var certificationLogoURL = "certification.png";
 	var widthLogo = "100px";
 	var descriptionLogoFontFamily="Montserrat"; //Font from Google Fonts >> https://fonts.googleapis.com/css?family=Montserrat
 	var descriptionLogoFontSize="8px";
 	
-	var certificationServer = "http://192.168.1.17:8080/byochain/";
+	var certificationServer = "http://192.168.1.37:8080/";
 	/** ****************************************** **/
 	/** ****************************************** **/
 

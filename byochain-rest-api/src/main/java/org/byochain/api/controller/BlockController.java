@@ -1,5 +1,6 @@
 package org.byochain.api.controller;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 import org.byochain.api.enumeration.ByoChainApiExceptionEnum;
@@ -107,14 +108,17 @@ public class BlockController {
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public ByoChainApiResponse addBlock(@RequestBody BlockCreationRequest request, Locale locale, Authentication authentication)
 			throws ByoChainException {
-		if (request == null || request.getData() == null || request.getData().isEmpty()) {
+		if (request == null || request.getName() == null || request.getName().isEmpty() || request.getLogo() == null || request.getExpirationDate() == null) {
 			throw ByoChainApiExceptionEnum.BLOCK_CONTROLLER_DATA_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
 		}
+
+		Calendar calendar = Calendar.getInstance(locale);
+		calendar.setTime(request.getExpirationDate());
 		
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 		User user = getAuthenticatedUserID(locale, userDetails);
 		
-		Block block = blockService.addBlock(request.getData(), user);
+		Block block = blockService.addCertificationBlock(user, request.getName(), calendar, request.getLogo());
 		ByoChainApiResponse response = ByoChainApiResponseEnum.CONTROLLER_OK.getResponse(messageSource, locale);
 		response.setData(block);
 		return response;

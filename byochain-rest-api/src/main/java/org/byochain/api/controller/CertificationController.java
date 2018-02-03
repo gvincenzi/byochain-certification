@@ -65,16 +65,16 @@ public class CertificationController {
 		}
 		
 		if (!block.getValidated()) {
-			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY.getExceptionAfterServiceCall(messageSource, locale, block.getData());
+			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY.getExceptionAfterServiceCall(messageSource, locale, block.getData().getData());
 		}
 		
 		String tokenToValidate = ((CertificationBlockService)blockService).getTemporaryToken(block);
 		
 		Boolean validation = tokenToValidate.equals(token);
 		if (validation) {
-			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_OK.getResponse(messageSource, locale, block.getData());
+			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_OK.getResponse(messageSource, locale, block.getData().getData());
 		} else {
-			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData());
+			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData().getData());
 		}
 		return response;
 	}
@@ -103,7 +103,7 @@ public class CertificationController {
 		}
 		
 		if(!refererIsValid){
-			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_REFERER.getExceptionAfterServiceCall(messageSource, locale, referer, block.getData());
+			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_REFERER.getExceptionAfterServiceCall(messageSource, locale, referer, block.getData().getData());
 		}
 		
 		String token = ((CertificationBlockService)blockService).getTemporaryToken(block);
