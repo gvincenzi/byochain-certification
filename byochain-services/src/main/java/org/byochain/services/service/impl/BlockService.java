@@ -197,6 +197,7 @@ public abstract class BlockService implements IBlockService {
 		if (block == null) {
 			throw new ByoChainServiceException("Data is mandatory");
 		}
+		block.getValidators().clear();
 		return blockRepository.save(block);
 	}
 }
