@@ -38,8 +38,8 @@ var certificationServer = "http://192.168.1.17:8080/byochain/";
 ## Installation
 ### Database
 The MariaDB will be initialized by the following 2 SQL scripts :
-** Tables init ** : [init_datatables.sql](https://github.com/gvincenzi/byochain-certification/blob/master/sql/1.1.0/init_datatables.sql
-** Data init ** : [init_data.sql](https://github.com/gvincenzi/byochain-certification/blob/master/sql/1.1.0/init_data.sql
+**Tables init** : [Tables SQL init](https://github.com/gvincenzi/byochain-certification/blob/master/sql/1.1.0/init_datatables.sql)
+**Data init** : [Data SQL init](https://github.com/gvincenzi/byochain-certification/blob/master/sql/1.1.0/init_data.sql)
 
 ### Start BYOChain server
 To start the BYOChain server, you must deploy the WAR builded by Maven (module byochain-rest-api) in your Application Server, or launch it directly by command line:
@@ -68,17 +68,17 @@ The first step is to create one users for eache member of your community.
 Create users by specific API **POST /api/v1/admin/users** : in the response you will receive his assigned password.
 
 ### Create new block
-Create a new block using the credentials of your own user and by specific API ** POST /api/v1/blocks/ ** : you need only the official name of your new certificated member.
+Create a new block using the credentials of your own user and by specific API **POST /api/v1/blocks/** : you need only the official name of your new certificated member.
 Using the mined block hash to configure the [JS script](https://github.com/gvincenzi/byochain-certification/blob/master/widget/byochain.js) for your certificated member web site.
 
 ### Add a referer
-Create a new referer for your new block using the credentials of your own user and by specific API ** POST /api/v1/certifications/admin/referers **.
+Create a new referer for your new block using the credentials of your own user and by specific API **POST /api/v1/certifications/admin/referers**.
 This referer must be the URL of the web page containing your certification logo.
 You can insert a specific URL, or a URL ending with '*' to accept all web page responding to an URL starting with your referer string.
 
 ### Validation by other users
 The last step is the validation of the other users registered in your BYOChain system : each user must only validate the blockchain to add a validation to your block.
-Your block will be validated when it have a number of validations greater or equal than the parameter "" in [application-service.properties](https://github.com/gvincenzi/byochain-certification/blob/master/byochain-services/src/main/resources/application-service.properties)
+Your block will be validated when it have a number of validations greater or equal than the parameter **required.validation.number** in [application-service.properties](https://github.com/gvincenzi/byochain-certification/blob/master/byochain-services/src/main/resources/application-service.properties)
 
 ### Visit referer URL
 Now your logo is correctly visible in your referer web page.
