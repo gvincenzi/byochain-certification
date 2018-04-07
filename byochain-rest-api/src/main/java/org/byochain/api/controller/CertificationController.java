@@ -40,6 +40,8 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/api/v1/certifications")
 public class CertificationController {
+	private static final String STAR = "*";
+
 	@Autowired
 	protected MessageSource messageSource;
 
@@ -141,7 +143,8 @@ public class CertificationController {
 		Boolean refererIsValid = false;
 		Iterator<BlockReferer> iterator = block.getReferers().iterator();
 		while(!refererIsValid && iterator.hasNext()){
-			refererIsValid = iterator.next().getReferer().equalsIgnoreCase(referer);
+			String refererString = iterator.next().getReferer();
+			refererIsValid = refererString.endsWith(STAR) ? referer.toLowerCase().startsWith(refererString.toLowerCase()) : referer.equalsIgnoreCase(referer);
 		}
 		
 		if(!refererIsValid){
@@ -189,7 +192,7 @@ public class CertificationController {
 	 * @return {@link ByoChainApiResponse}
 	 * @throws {@link ByoChainException}
 	 */
-	@ApiOperation(value = "Add a remove to a block",
+	@ApiOperation(value = "Add a referer to a block",
 		    notes = "This service removes a referer to a block")
 	@RequestMapping(value = "/admin/referers", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ByoChainApiResponse removeReferer(@RequestBody BlockRefererRemoveRequest request, Locale locale) throws ByoChainException {
