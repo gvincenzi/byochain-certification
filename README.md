@@ -37,7 +37,7 @@ var certificationServer = "http://192.168.1.17:8080/byochain/";
 
 ## Installation
 ### Database
-The MariaDB will be initialized by the following 2 SQL scripts : [Tables SQL init script](https://github.com/gvincenzi/byochain-certification/blob/master/sql/1.1.0/init_datatables.sql) and [Data SQL init script](https://github.com/gvincenzi/byochain-certification/blob/master/sql/1.1.0/init_data.sql)
+The MariaDB will be initialized by the following 2 SQL scripts : [Tables SQL init script](https://github.com/gvincenzi/byochain-certification/blob/master/sql/master/init_datatables.sql) and [Data SQL init script](https://github.com/gvincenzi/byochain-certification/blob/master/sql/master/init_data.sql)
 
 ### Start BYOChain server
 To start the BYOChain server, you must deploy the WAR builded by Maven (module byochain-rest-api) in your Application Server, or launch it directly by command line:
