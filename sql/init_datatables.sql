@@ -57,13 +57,25 @@ CREATE TABLE IF NOT EXISTS `user_roles` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
+-- Table `byochain`.`block_data`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `block_data` (
+  `block_data_id` INT NOT NULL AUTO_INCREMENT,
+  `data` VARCHAR(5000) NOT NULL,
+  `logo` VARCHAR(5000) NOT NULL,
+  `expiration_date` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `enabled` INT(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`block_data_id`))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
 -- Table `byochain`.`block`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `block` (
   `block_id` INT NOT NULL AUTO_INCREMENT,
   `miner_id` INT NOT NULL,
+  `block_data_id` INT NOT NULL,
   `nonce` INT NOT NULL,
-  `data` VARCHAR(5000) NOT NULL,
   `hash` VARCHAR(5000) NOT NULL,
   `previous_hash` VARCHAR(5000) NOT NULL,
   `timestamp` DATETIME(3) NOT NULL,
@@ -71,6 +83,11 @@ CREATE TABLE IF NOT EXISTS `block` (
   CONSTRAINT `fk_miner`
     FOREIGN KEY (`miner_id`)
     REFERENCES `byochain`.`user` (`user_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_block_data`
+    FOREIGN KEY (`block_data_id`)
+    REFERENCES `byochain`.`block_data` (`block_data_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

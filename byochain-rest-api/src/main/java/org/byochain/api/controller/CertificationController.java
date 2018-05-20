@@ -1,10 +1,12 @@
 package org.byochain.api.controller;
 
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Locale;
 
 import org.byochain.api.enumeration.ByoChainApiExceptionEnum;
 import org.byochain.api.enumeration.ByoChainApiResponseEnum;
+import org.byochain.api.request.BlockDataUpdateRequest;
 import org.byochain.api.request.BlockRefererAddRequest;
 import org.byochain.api.request.BlockRefererRemoveRequest;
 import org.byochain.api.response.ByoChainApiResponse;
@@ -38,6 +40,8 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/api/v1/certifications")
 public class CertificationController {
+	private static final String STAR = "*";
+
 	@Autowired
 	protected MessageSource messageSource;
 
@@ -65,17 +69,57 @@ public class CertificationController {
 		}
 		
 		if (!block.getValidated()) {
-			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY.getExceptionAfterServiceCall(messageSource, locale, block.getData());
-		}
-		
-		String tokenToValidate = ((CertificationBlockService)blockService).getTemporaryToken(block);
-		
-		Boolean validation = tokenToValidate.equals(token);
-		if (validation) {
-			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_OK.getResponse(messageSource, locale, block.getData());
+			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY.getResponse(messageSource, locale, block.getData().getData());
+		} else if (block.getData().getExpirationDate()!=null && block.getData().getExpirationDate().before(Calendar.getInstance(locale))) {
+			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_EXPIRATION.getResponse(messageSource, locale, block.getData().getData());
+		} else if (!block.getData().getEnabled()) {
+			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_ENABLED.getResponse(messageSource, locale, block.getData().getData());
 		} else {
-			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData());
+			String tokenToValidate = ((CertificationBlockService)blockService).getTemporaryToken(block);
+			
+			Boolean validation = tokenToValidate.equals(token);
+			if (validation) {
+				response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_OK.getResponse(messageSource, locale, block.getData().getData());
+			} else {
+				response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData().getData());
+			}
 		}
+		response.setData(block.getData());
+		return response;
+	}
+	
+	/**
+	 * This service enable a block by its hash
+	 * @param hash String containing the hash to search in database
+	 * @param locale Locale object (by framework)
+	 * @return {@link ByoChainApiResponse}
+	 * @throws {@link ByoChainException}
+	 */
+	@ApiOperation(value = "Update block data",
+		    notes = "This service checks a block by its hash and temporary token")
+	@RequestMapping(value = "/admin/{hash}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ByoChainApiResponse updateBlockData(@PathVariable("hash") String hash, @RequestBody BlockDataUpdateRequest request, Locale locale)
+			throws ByoChainException {	
+		Block block = ((CertificationBlockService)blockService).getBlockByHash(hash);
+		if (block == null) {
+			throw ByoChainApiExceptionEnum.BLOCK_CONTROLLER_HASH_NOT_EXIST.getExceptionAfterServiceCall(messageSource, locale, hash);
+		}
+		
+		if (request == null || request.getEnabled() == null || request.getLogo() == null || request.getExpirationDate() == null) {
+			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_BLOCKDATA_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
+		}
+		
+		Calendar calendar = Calendar.getInstance(locale);
+		calendar.setTime(request.getExpirationDate());
+
+		block.getData().setEnabled(request.getEnabled());
+		block.getData().setExpirationDate(calendar);
+		block.getData().setLogo(request.getLogo());
+		
+		blockService.updateBlock(block);
+		
+		ByoChainApiResponse response = ByoChainApiResponseEnum.CONTROLLER_OK.getResponse(messageSource, locale);
+		response.setData(block);
 		return response;
 	}
 	
@@ -99,11 +143,12 @@ public class CertificationController {
 		Boolean refererIsValid = false;
 		Iterator<BlockReferer> iterator = block.getReferers().iterator();
 		while(!refererIsValid && iterator.hasNext()){
-			refererIsValid = iterator.next().getReferer().equalsIgnoreCase(referer);
+			String refererString = iterator.next().getReferer();
+			refererIsValid = refererString.endsWith(STAR) ? referer.toLowerCase().startsWith(refererString.toLowerCase()) : referer.equalsIgnoreCase(referer);
 		}
 		
 		if(!refererIsValid){
-			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_REFERER.getExceptionAfterServiceCall(messageSource, locale, referer, block.getData());
+			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_CHECK_REFERER.getExceptionAfterServiceCall(messageSource, locale, referer, block.getData().getData());
 		}
 		
 		String token = ((CertificationBlockService)blockService).getTemporaryToken(block);
@@ -122,7 +167,7 @@ public class CertificationController {
 	 */
 	@ApiOperation(value = "Add a referer to a block",
 		    notes = "This service adds a referer to a block")
-	@RequestMapping(value = "/referers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/admin/referers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ByoChainApiResponse addReferer(@RequestBody BlockRefererAddRequest request, Locale locale) throws ByoChainException {
 		if (request == null || request.getHash() == null || request.getHash().isEmpty() || request.getReferer() == null || request.getReferer().isEmpty()) {
 			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_REFERER_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
@@ -147,9 +192,9 @@ public class CertificationController {
 	 * @return {@link ByoChainApiResponse}
 	 * @throws {@link ByoChainException}
 	 */
-	@ApiOperation(value = "Add a remove to a block",
+	@ApiOperation(value = "Add a referer to a block",
 		    notes = "This service removes a referer to a block")
-	@RequestMapping(value = "/referers", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/admin/referers", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ByoChainApiResponse removeReferer(@RequestBody BlockRefererRemoveRequest request, Locale locale) throws ByoChainException {
 		if (request == null || request.getHash() == null || request.getHash().isEmpty() || request.getReferer() == null || request.getReferer().isEmpty()) {
 			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_REFERER_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);

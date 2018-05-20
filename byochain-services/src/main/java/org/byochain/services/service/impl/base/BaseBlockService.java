@@ -47,7 +47,7 @@ public class BaseBlockService extends BlockService {
 				block.getPreviousHash() +
 				Long.toString(block.getTimestamp().getTimeInMillis()) +
 				Integer.toString(block.getNonce()) +
-				block.getData() 
+				block.getData().getData()
 				);
 		return calculatedhash;
 	}

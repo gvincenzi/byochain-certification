@@ -3,16 +3,11 @@ package org.byochain.api.request;
 import java.util.Date;
 
 /**
- * BlockCreationRequest used for API Service "POST /api/v1/blocks"
+ * BlockCreationRequest used for API Service "POST /api/v1/certifications/admin/{hash}"
  * @author Giuseppe Vincenzi
  *
  */
-public class BlockCreationRequest {
-	/**
-	 * Name
-	 */
-	private String name;
-	
+public class BlockDataUpdateRequest {
 	/**
 	 * expirationDate
 	 */
@@ -22,6 +17,11 @@ public class BlockCreationRequest {
 	 * logo
 	 */
 	private String logo;
+	
+	/**
+	 * enabled
+	 */
+	private Boolean enabled;
 
 	/**
 	 * @return the expirationDate
@@ -52,16 +52,16 @@ public class BlockCreationRequest {
 	}
 
 	/**
-	 * @return the name
+	 * @return the enabled
 	 */
-	public String getName() {
-		return name;
+	public Boolean getEnabled() {
+		return enabled;
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param enabled the enabled to set
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
 	}
 }

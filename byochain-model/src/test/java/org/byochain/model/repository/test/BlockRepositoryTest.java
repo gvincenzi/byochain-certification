@@ -5,7 +5,9 @@ import java.util.Set;
 
 import org.byochain.model.AppModel;
 import org.byochain.model.entity.Block;
+import org.byochain.model.entity.BlockData;
 import org.byochain.model.entity.User;
+import org.byochain.model.repository.BlockDataRepository;
 import org.byochain.model.repository.BlockRepository;
 import org.byochain.model.repository.UserRepository;
 import org.junit.After;
@@ -33,6 +35,9 @@ public class BlockRepositoryTest {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private BlockDataRepository blockDataRepository;
 
 	private Set<Block> blocks = new LinkedHashSet<>();
 
@@ -42,11 +47,25 @@ public class BlockRepositoryTest {
 		userRepository.deleteAll();
 		User miner = userRepository.save(getUserMock());
 
-		Block block1 = new Block("Genesis block", "0", miner);
+		BlockData blockData = new BlockData();
+		blockData.setData("Genesis block");
+		BlockData blockData2 = new BlockData();
+		blockData2.setData("Block#2");
+		BlockData blockData3 = new BlockData();
+		blockData3.setData("Block#3");
+		
+		blockDataRepository.save(blockData);
+		blockDataRepository.save(blockData2);
+		blockDataRepository.save(blockData3);
+		
+		Block block1 = new Block(blockData, "0", miner);
 		block1.setHash("HASH1");
-		Block block2 = new Block("Block#2", block1.getHash(), miner);
+		
+		
+		Block block2 = new Block(blockData2, block1.getHash(), miner);
 		block2.setHash("HASH2");
-		Block block3 = new Block("Block#3", block2.getHash(), miner);
+		
+		Block block3 = new Block(blockData3, block2.getHash(), miner);
 		block3.setHash("HASH3");
 
 		blocks.add(block1);

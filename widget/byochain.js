@@ -3,13 +3,13 @@
 	/** ****************************************** **/
 	/** MODIFY SPECIFIC CERTIFICATION INFORMATIONS **/
 	
-	var hash = "0daa29144f8d70548f70065f02159b85e6007424d623786a1a941a3c44d834fa";
-	var certificationLogoURL = "certification.png";
+	var hash = "f3d1d0d92fa60c8e87bd1f3c0e847334e8ab69a7524485057460fb23b36f15dc";
 	var widthLogo = "100px";
 	var descriptionLogoFontFamily="Montserrat"; //Font from Google Fonts >> https://fonts.googleapis.com/css?family=Montserrat
 	var descriptionLogoFontSize="8px";
 	
-	var certificationServer = "http://192.168.1.17:8080/byochain/";
+	var certificationServer = "http://192.168.1.37:8080/";
+	
 	/** ****************************************** **/
 	/** ****************************************** **/
 
@@ -76,6 +76,7 @@
 	/** ****** starting point for your widget ******* */
 	function main() {
 		jQuery(document).ready(function($) {
+			var certificationLogoURL;
 			var token;
 			$.ajax({
 				url : certificationServer+"api/v1/certifications/token/" + hash,
@@ -94,6 +95,7 @@
 						dataType : "jsonp",
 						timeout: 15000,
 						success : function(result) {
+							certificationLogoURL = result.data.logo;
 							// console.log(result);
 							if (result.code == 1010) {
 								var styles = {fontFamily : descriptionLogoFontFamily,fontSize : descriptionLogoFontSize};
@@ -123,7 +125,7 @@
 											+ "</b>"
 									)
 									.appendTo($('#byochain'));
-								} else if (result.code == 1011 || result.code == 1013) {
+								} else if (result.code == 1011 || result.code == 1013 || result.code == 1015 || result.code == 1017) {
 									var styles = { fontFamily : descriptionLogoFontFamily, fontSize : descriptionLogoFontSize };
 									$('#byochain').css(styles);
 									$('<style />')
@@ -153,13 +155,6 @@
 							$('<style />')
 								.html("@import url('https://fonts.googleapis.com/css?family="+descriptionLogoFontFamily+"');")
 								.appendTo($('#byochain'));
-							$('<img />')
-								.attr('src',certificationLogoURL)
-								.attr('title',"Certification Logo")
-								.attr('alt',"Certification Logo")
-								.width(widthLogo)
-								.css('opacity','0.1')
-								.appendTo($('#byochain'));
 							$('<p />')
 								.html("<b>"
 										+ "<b>BYOChain Certification Server error</b> > " + errorThrown + " > Status : " + textStatus + " > Server URL : " + certificationServer
@@ -172,13 +167,6 @@
 						$('#byochain').css(styles);
 						$('<style />')
 							.html("@import url('https://fonts.googleapis.com/css?family="+descriptionLogoFontFamily+"');")
-							.appendTo($('#byochain'));
-						$('<img />')
-							.attr('src',certificationLogoURL)
-							.attr('title',"Certification Logo")
-							.attr('alt',"Certification Logo")
-							.width(widthLogo)
-							.css('opacity','0.1')
 							.appendTo($('#byochain'));
 						$('<p />')
 							.html("<b>"
@@ -196,13 +184,6 @@
 				$('#byochain').css(styles);
 				$('<style />')
 					.html("@import url('https://fonts.googleapis.com/css?family="+descriptionLogoFontFamily+"');")
-					.appendTo($('#byochain'));
-				$('<img />')
-					.attr('src',certificationLogoURL)
-					.attr('title',"Certification Logo")
-					.attr('alt',"Certification Logo")
-					.width(widthLogo)
-					.css('opacity','0.1')
 					.appendTo($('#byochain'));
 				$('<p />')
 					.html("<b>"

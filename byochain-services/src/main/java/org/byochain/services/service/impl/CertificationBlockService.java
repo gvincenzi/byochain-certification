@@ -6,11 +6,15 @@ package org.byochain.services.service.impl;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.byochain.commons.utils.BlockchainUtils;
 import org.byochain.model.entity.Block;
+import org.byochain.model.entity.BlockData;
 import org.byochain.model.entity.BlockReferer;
+import org.byochain.model.entity.User;
+import org.byochain.model.repository.BlockDataRepository;
 import org.byochain.model.repository.BlockRefererRepository;
 import org.byochain.services.exception.ByoChainServiceException;
 import org.byochain.services.service.ICertificationBlockService;
@@ -41,6 +45,9 @@ public class CertificationBlockService extends BlockService implements ICertific
 	@Autowired
 	private BlockRefererRepository blockRefererRepository;
 	
+	@Autowired
+	private BlockDataRepository blockDataRepository;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -68,7 +75,7 @@ public class CertificationBlockService extends BlockService implements ICertific
 	public String calculateHash(Block block) {
 		String calculatedhash = BlockchainUtils
 				.applySha256(block.getPreviousHash() + Long.toString(block.getTimestamp().getTimeInMillis())
-						+ Integer.toString(block.getNonce()) + block.getData());
+						+ Integer.toString(block.getNonce()) + block.getData().getData());
 		return calculatedhash;
 	}
 
@@ -98,11 +105,34 @@ public class CertificationBlockService extends BlockService implements ICertific
 		return updateBlock(block);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Block removeReferer(String referer, Block block) throws ByoChainServiceException {
 		for (BlockReferer blockReferer : blockRefererRepository.find(block, referer)) {
 			block.removeReferer(blockReferer);
 		}
 		return updateBlock(block);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Block addCertificationBlock(User miner, String name, Calendar expirationDate, String logo) throws ByoChainServiceException {
+		BlockData blockData = new BlockData();
+		blockData.setData(name);
+		blockData.setExpirationDate(expirationDate);
+		blockData.setLogo(logo);
+		blockData = blockDataRepository.save(blockData);
+		Block block;
+		try {
+			block = addBlock(blockData, miner);
+		} catch (ByoChainServiceException e) {
+			blockDataRepository.delete(blockData);
+			throw e;
+		}
+		return block;
 	}
 }

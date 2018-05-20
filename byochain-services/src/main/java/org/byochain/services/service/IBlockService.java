@@ -3,6 +3,7 @@ package org.byochain.services.service;
 import java.util.Set;
 
 import org.byochain.model.entity.Block;
+import org.byochain.model.entity.BlockData;
 import org.byochain.model.entity.User;
 import org.byochain.services.exception.ByoChainServiceException;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,7 @@ public interface IBlockService {
 	 * @return Block mined but not yet validated
 	 * @throws ByoChainServiceException
 	 */
-	Block addBlock(String data, User user) throws ByoChainServiceException;
+	Block addBlock(BlockData data, User user) throws ByoChainServiceException;
 	
 	/**
 	 * Update a block in the BlockChain

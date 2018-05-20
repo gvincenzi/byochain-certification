@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.byochain.model.entity.Block;
+import org.byochain.model.entity.BlockData;
 import org.byochain.model.entity.User;
 import org.byochain.model.repository.BlockRepository;
 import org.byochain.services.exception.ByoChainServiceException;
@@ -101,11 +102,11 @@ public abstract class BlockService implements IBlockService {
 	 * @return Block mined but not yet validated
 	 * @throws ByoChainServiceException
 	 */
-	protected Block mineBlock(String data, Block previousBlock, User miner) throws ByoChainServiceException {
-		if (data == null || data.isEmpty() || miner == null) {
+	protected Block mineBlock(BlockData blockData, Block previousBlock, User miner) throws ByoChainServiceException {
+		if (blockData == null || miner == null) {
 			throw new ByoChainServiceException("Data and Miner are mandatory");
 		}
-		Block block = new Block(data, previousBlock != null ? previousBlock.getHash() : GENESIS, miner);
+		Block block = new Block(blockData, previousBlock != null ? previousBlock.getHash() : GENESIS, miner);
 		
 		Random random = new Random(block.getTimestamp().getTimeInMillis());
 		int nonce = Math.abs(random.nextInt());
@@ -151,7 +152,7 @@ public abstract class BlockService implements IBlockService {
 				result = false;
 			}
 			
-			if(i==blocks.size()-1 && currentBlock.getValidators().size()<requiredValidationNumber && !currentBlock.getMiner().equals(validator) && !currentBlock.getValidators().contains(validator)){
+			if(currentBlock.getValidators().size()<requiredValidationNumber && !currentBlock.getMiner().equals(validator) && !currentBlock.getValidators().contains(validator)){
 				currentBlock.getValidators().add(validator);
 				blockRepository.save(currentBlock);
 			}
@@ -179,9 +180,9 @@ public abstract class BlockService implements IBlockService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Block addBlock(String data, User user) throws ByoChainServiceException {
-		if (data == null || data.isEmpty()) {
-			throw new ByoChainServiceException("Data is mandatory");
+	public Block addBlock(BlockData data, User user) throws ByoChainServiceException {
+		if (data == null || data.getBlockDataId() == null) {
+			throw new ByoChainServiceException("Data (persisted object) is mandatory");
 		}
 		Block previousBlock = blockRepository.findLast();
 		Block newBlock = mineBlock(data, previousBlock, user);
@@ -196,6 +197,7 @@ public abstract class BlockService implements IBlockService {
 		if (block == null) {
 			throw new ByoChainServiceException("Data is mandatory");
 		}
+		block.getValidators().clear();
 		return blockRepository.save(block);
 	}
 }
