@@ -196,7 +196,7 @@
 					.appendTo($('#byochain'));
 				$('<p />')
 					.html("<b>"
-							+ "<b>BYOChain Certification Server error</b> > " + errorThrown + " > Status : " + textStatus + " > Server URL : " + certificationServer
+							+ "<b>BYOChain Certification Server error</b> > " + jqXHR.responseJSON.error + " > Status : " + jqXHR.responseJSON.status + " " + jqXHR.responseJSON.message + " > Server URL : " + certificationServer
 					)
 					.appendTo($('#byochain'));
 			});
