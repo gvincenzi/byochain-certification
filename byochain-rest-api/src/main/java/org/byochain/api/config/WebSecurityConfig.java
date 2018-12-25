@@ -12,6 +12,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Spring Boot configuration class to define Authentication beans for "production" profile.
@@ -41,12 +46,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
-		http.authorizeRequests()
+		http.cors().and()
+		.authorizeRequests()
 		.antMatchers("/api/v1/blocks/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 		.antMatchers("/api/v1/admin/**").access("hasRole('ROLE_ADMIN')")
-		.antMatchers("/api/v1/certifications/admin/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-		.antMatchers("/api/v1/certifications/token/**").permitAll()
-		.antMatchers("/api/v1/certifications/check/**").permitAll()
+		.antMatchers("/api/v1/certifications/admin/**").access("hasRole('ROLE_ADMIN')")
+		.antMatchers("/api/v1/certifications/token/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+		.antMatchers("/api/v1/certifications/check/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 		.and().httpBasic().realmName(BYOChainBasicAuthenticationEntryPoint.REALM).authenticationEntryPoint(new BYOChainBasicAuthenticationEntryPoint())
 		.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
@@ -56,4 +62,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		PasswordEncoder encoder = new BYOChainPasswordEncoder();
 		return encoder;
 	}
+	
+	@Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(ImmutableList.of("*"));
+        configuration.setAllowedMethods(ImmutableList.of("HEAD",
+                "GET", "POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type"));
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

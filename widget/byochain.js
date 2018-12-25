@@ -3,7 +3,10 @@
 	/** ****************************************** **/
 	/** MODIFY SPECIFIC CERTIFICATION INFORMATIONS **/
 	
-	var hash = "f3d1d0d92fa60c8e87bd1f3c0e847334e8ab69a7524485057460fb23b36f15dc";
+	var hash = "3580fca4d10ac45046bf7ad7873134c10422af62ffa9335dc56237a8f2e306c8";
+	var username = "gvincenzi";
+	var password = "p6I8Blm!CI@HEc1";
+	
 	var widthLogo = "100px";
 	var descriptionLogoFontFamily="Montserrat"; //Font from Google Fonts >> https://fonts.googleapis.com/css?family=Montserrat
 	var descriptionLogoFontSize="8px";
@@ -79,20 +82,26 @@
 			var certificationLogoURL;
 			var token;
 			$.ajax({
+				headers: {
+				    "Authorization": "Basic " + btoa(username + ":" + password)
+				  },
 				url : certificationServer+"api/v1/certifications/token/" + hash,
 				type : "GET",
-				dataType : "jsonp",
+				dataType : "json",
 				timeout: 15000,
 				success : function(result) {
 					if (result.code == 5000) {
 					token = result.data;
 					$.ajax({
+						headers: {
+						    "Authorization": "Basic " + btoa(username + ":" + password)
+						  },
 						url : certificationServer+"api/v1/certifications/check/"
 							+ hash
 							+ "/"
 							+ token,
 						type : "GET",
-						dataType : "jsonp",
+						dataType : "json",
 						timeout: 15000,
 						success : function(result) {
 							certificationLogoURL = result.data.logo;
@@ -125,7 +134,7 @@
 											+ "</b>"
 									)
 									.appendTo($('#byochain'));
-								} else if (result.code == 1011 || result.code == 1013 || result.code == 1015 || result.code == 1017) {
+								} else if (result.code == 1003 || result.code == 1011 || result.code == 1013 || result.code == 1015 || result.code == 1017) {
 									var styles = { fontFamily : descriptionLogoFontFamily, fontSize : descriptionLogoFontSize };
 									$('#byochain').css(styles);
 									$('<style />')

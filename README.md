@@ -11,6 +11,7 @@ To validate a single certification, the system will validate all the blockchain.
 
 ## Widget to share a logo within the sites of certificated users
 In the project a widget has been coded (HTML+JS) to share the logo of certification on certificated sites: the widget will print the logo (simple image file) with related certification informations (hash code and a temporary token).
+For each refresh of the logo there will be a validation of the blockchain.
 To insert the widget in a web page, it's necessary to integrate two HTML lines :
 
 ```html
@@ -24,7 +25,10 @@ and to modify the byochain.js using the right hash code and certification server
 /** ****************************************** **/
 /** MODIFY SPECIFIC CERTIFICATION INFORMATIONS **/
 	
-var hash = "0daa29144f8d70548f70065f02159b85e6007424d623786a1a941a3c44d834fa";
+var hash = "3580fca4d10ac45046bf7ad7873134c10422af62ffa9335dc56237a8f2e306c8";
+var username = "gvincenzi";
+var password = "p6I8Blm!CI@HEc1";
+
 var widthLogo = "100px";
 var descriptionLogoFontFamily="Montserrat"; //Font from Google Fonts >> https://fonts.googleapis.com/css?family=Montserrat
 var descriptionLogoFontSize="8px";

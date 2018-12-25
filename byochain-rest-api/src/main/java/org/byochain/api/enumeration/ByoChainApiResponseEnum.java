@@ -13,6 +13,7 @@ import org.springframework.context.MessageSource;
  */
 public enum ByoChainApiResponseEnum {
 	BLOCK_CONTROLLER_VALIDATION_OK("block.controller.validation.ok"),
+	BLOCK_CONTROLLER_VALIDATION_KO("block.controller.validation.ko"),
 	CERTIFICATIONS_CONTROLLER_CHECK_OK("certifications.controller.check.ok"),
 	CERTIFICATIONS_CONTROLLER_CHECK_KO("certifications.controller.check.ko"),
 	CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY("certifications.controller.check.validity"),

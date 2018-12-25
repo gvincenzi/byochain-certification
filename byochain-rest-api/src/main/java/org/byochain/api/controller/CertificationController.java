@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import org.byochain.api.enumeration.ByoChainApiExceptionEnum;
 import org.byochain.api.enumeration.ByoChainApiResponseEnum;
+import org.byochain.api.exception.ByoChainApiException;
 import org.byochain.api.request.BlockDataUpdateRequest;
 import org.byochain.api.request.BlockRefererAddRequest;
 import org.byochain.api.request.BlockRefererRemoveRequest;
@@ -13,12 +14,17 @@ import org.byochain.api.response.ByoChainApiResponse;
 import org.byochain.commons.exception.ByoChainException;
 import org.byochain.model.entity.Block;
 import org.byochain.model.entity.BlockReferer;
+import org.byochain.model.entity.User;
+import org.byochain.services.exception.ByoChainServiceException;
 import org.byochain.services.service.ICertificationBlockService;
 import org.byochain.services.service.impl.CertificationBlockService;
+import org.byochain.services.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -36,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
  * @author Giuseppe Vincenzi
  *
  */
-@Api(value = "/api/v1/certifications", produces = "application/jsonp")
+@Api(value = "/api/v1/certifications", produces = "application/json")
 @RestController
 @RequestMapping("/api/v1/certifications")
 public class CertificationController {
@@ -49,6 +55,9 @@ public class CertificationController {
 	@Qualifier("certificationBlockService")
 	private ICertificationBlockService blockService;
 	
+	@Autowired
+	private UserService userService;
+	
 	/**
 	 * This service check the block by its hash and temporary token
 	 * @param hash String containing the hash to search in database
@@ -57,18 +66,23 @@ public class CertificationController {
 	 * @return {@link ByoChainApiResponse}
 	 * @throws {@link ByoChainException}
 	 */
-	@ApiOperation(value = "Check block by hash and temporary token",
+	@ApiOperation(value = "Validate chain and check block by hash and temporary token",
 		    notes = "This service checks a block by its hash and temporary token")
 	@RequestMapping(value = "/check/{hash}/{token}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ByoChainApiResponse checkBlock(@PathVariable("hash") String hash, @PathVariable("token") String token, Locale locale)
+	public ByoChainApiResponse checkChainAndBlock(@PathVariable("hash") String hash, @PathVariable("token") String token, Locale locale, Authentication authentication)
 			throws ByoChainException {	
+		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		User user = getAuthenticatedUserID(locale, userDetails);
+		
 		Block block = ((CertificationBlockService)blockService).getBlockByHash(hash);
 		ByoChainApiResponse response = null;
 		if (block == null) {
 			throw ByoChainApiExceptionEnum.BLOCK_CONTROLLER_HASH_NOT_EXIST.getExceptionAfterServiceCall(messageSource, locale, hash);
-		}
-		
-		if (!block.getValidated()) {
+		} 
+
+		if (!blockService.validateChain(blockService.getAllBlocks(), user)) {
+			response = ByoChainApiResponseEnum.BLOCK_CONTROLLER_VALIDATION_KO.getResponse(messageSource, locale, block.getData().getData());
+		} else if (!block.getValidated()) {
 			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_VALIDITY.getResponse(messageSource, locale, block.getData().getData());
 		} else if (block.getData().getExpirationDate()!=null && block.getData().getExpirationDate().before(Calendar.getInstance(locale))) {
 			response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_EXPIRATION.getResponse(messageSource, locale, block.getData().getData());
@@ -77,8 +91,7 @@ public class CertificationController {
 		} else {
 			String tokenToValidate = ((CertificationBlockService)blockService).getTemporaryToken(block);
 			
-			Boolean validation = tokenToValidate.equals(token);
-			if (validation) {
+			if (tokenToValidate.equals(token)) {
 				response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_OK.getResponse(messageSource, locale, block.getData().getData());
 			} else {
 				response = ByoChainApiResponseEnum.CERTIFICATIONS_CONTROLLER_CHECK_KO.getResponse(messageSource, locale, block.getData().getData());
@@ -209,6 +222,23 @@ public class CertificationController {
 		ByoChainApiResponse response = ByoChainApiResponseEnum.CONTROLLER_OK.getResponse(messageSource, locale);
 		response.setData(blockUpdated);
 		return response;
+	}
+	
+	/**
+	 * Private method to get the {@link User} from database by {@link UserDetails} informations (in {@link Authentication} object)
+	 * @param locale Locale object (by framework)
+	 * @param userDetails {@link UserDetails} informations (in {@link Authentication} object)
+	 * @return {@link User}
+	 * @throws {@link ByoChainServiceException}
+	 * @throws {@link ByoChainApiException}
+	 */
+	private User getAuthenticatedUserID(Locale locale, UserDetails userDetails)
+			throws ByoChainServiceException, ByoChainApiException {
+		User user = userService.getUser(userDetails.getUsername(), userDetails.getPassword());
+		if (user == null) {
+			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_USER_DETAILS_INVALID.getExceptionBeforeServiceCall(messageSource, locale, userDetails.getUsername());
+		}
+		return user;
 	}
 	
 }
