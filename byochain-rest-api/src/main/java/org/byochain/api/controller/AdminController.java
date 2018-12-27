@@ -92,6 +92,28 @@ public class AdminController {
 		response.setData(user);
 		return response;
 	}
+	
+	/**
+	 * This service resets the user password
+	 * @param userId ID of user to modify
+	 * @param locale Locale object (by framework)
+	 * @return {@link ByoChainApiResponse}
+	 * @throws ByoChainException
+	 */
+	@ApiOperation(value = "Reset user password",
+		    notes = "This service resets the user password")
+	@RequestMapping(value = "/users/{id}/reset", method = RequestMethod.PUT)
+	public ByoChainApiResponse resetUserPassword(@PathVariable("id") Long userId, Locale locale) throws ByoChainException {
+		if (userId == null) {
+			throw ByoChainApiExceptionEnum.ADMIN_CONTROLLER_USER_PASSWORD_RESET_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
+		}
+
+		User user = userService.resetPassword(userId);
+		ByoChainApiResponse response = null;
+		response = ByoChainApiResponseEnum.CONTROLLER_OK.getResponse(messageSource, locale);
+		response.setData(user);
+		return response;
+	}
 
 	/**
 	 * This service creates a new user (with a temporary password returned in response for this didactical version)

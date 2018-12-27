@@ -10,7 +10,7 @@
 	<artifactId>byochain-rest-api</artifactId>
 	<name>byochain-rest-api</name>
 	<description>Projet exposing REST APIs</description>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
