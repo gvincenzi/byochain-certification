@@ -119,6 +119,30 @@ public class UserService implements IUserService {
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public User resetPassword(Long userId) throws ByoChainServiceException {
+		/** Check mandatory fields **/
+		if(userId==null){
+			throw new ByoChainServiceException("UserID is mandatory");
+		}
+		
+		User user = userRepository.findOne(userId);
+		
+		if(user==null){
+			throw new ByoChainServiceException("User does not exist");
+		}
+		
+		/** The password is returned after creation : it's possible to implement other more secure solutions **/
+		user.setTemporaryPassword(getEncoder().generateTemporaryPassword());
+		/** ------------------------------------------------------------------------------------------------ **/
+		user.setPassword(getEncoder().encode(user.getTemporaryPassword()));
+		
+		return userRepository.save(user);
+	}
+	
+	/**
 	 * Getter for encoder variable
 	 * @return the encoder
 	 */

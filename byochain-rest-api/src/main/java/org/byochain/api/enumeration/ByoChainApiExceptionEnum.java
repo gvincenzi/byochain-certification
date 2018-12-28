@@ -19,11 +19,14 @@ public enum ByoChainApiExceptionEnum {
 	BLOCK_CONTROLLER_SERVICE_ERROR("block.controller.service.error"),
 	
 	ADMIN_CONTROLLER_USER_ENABLING_MANDATORY("admin.controller.user.enabling.mandatory"),
+	ADMIN_CONTROLLER_USER_PASSWORD_RESET_MANDATORY("admin.controller.user.password.reset.mandatory"),
 	ADMIN_CONTROLLER_USER_DATA_MANDATORY("admin.controller.user.data.mandatory"),
 	ADMIN_CONTROLLER_USER_DETAILS_INVALID("admin.controller.user.details.invalid"),
+	
 	CERTIFICATIONS_CONTROLLER_REFERER_MANDATORY("certifications.controller.referer.mandatory"),
 	CERTIFICATIONS_CONTROLLER_CHECK_REFERER("certifications.controller.check.referer"),
-	CERTIFICATIONS_CONTROLLER_BLOCKDATA_MANDATORY("certifications.controller.data.mandatory");
+	CERTIFICATIONS_CONTROLLER_BLOCKDATA_MANDATORY("certifications.controller.data.mandatory"),
+	CERTIFICATIONS_CONTROLLER_USER_DETAILS_INVALID("certifications.controller.user.details.invalid"),;
 
 	private static final String MESSAGE = ".message";
 	private static final String CODE = ".code";

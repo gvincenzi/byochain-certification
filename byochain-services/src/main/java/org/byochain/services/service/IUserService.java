@@ -29,6 +29,14 @@ public interface IUserService {
 	User enableUser(Long userId, Boolean enabled) throws ByoChainServiceException;
 	
 	/**
+	 * Method to reset User password
+	 * @param userId ID of the user
+	 * @return User modified
+	 * @throws ByoChainServiceException
+	 */
+	User resetPassword(Long userId) throws ByoChainServiceException;
+	
+	/**
 	 * Method to add an User (with Role ROLE_USER as default)
 	 * @param user User to create
 	 * @return User created
