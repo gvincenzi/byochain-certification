@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>BYOChain: Checking Certification page</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style>
+	@import url('https://fonts.googleapis.com/css?family=Montserrat');
+	</style>
+	<link rel="stylesheet" type="text/css" media="all"
+		th:href="@{/css/byochain.css}" />
+</head>
+<body>
+	<div id="byochain" th:if="${valid}">
+		<div id="content" style="font-family: Montserrat; font-size: 15px;">
+			<h1 style="font-family: Montserrat;">
+				<a href="https://github.com/gvincenzi/byochain-certification"><img
+					th:attr="src=@{/images/certification.png},title='Go to GITHub poject',alt='Go to GITHub poject'"
+					style="width: 100px;" /></a> Checking Certification Page</h1>
+			
+			<hr />
+			
+			<h2>Issued certification logo</h2>
+			<img
+				th:attr="src=${logo},title='Certification Logo',alt='Certification Logo'"
+				style="width: 100px;" />
+			
+			<hr />
+	
+			<h2>Blockchain data</h2>
+			<span th:text="'Issued to : '" /><b><span th:text="${data}" /></b><br />
+			<span th:text="'Block Hash : '" /><b><span th:text="${hash}" /></b><br />
+			<span th:text="'Previous Block Hash : '" /><b><span th:text="${previoushash}" /></b><br />
+			<span th:text="'Expiration date : '" /><b><span th:text="${expirationdate}" /></b><br />
+			<span th:text="'Block validation : '" />
+			<span th:if="${validated}"><b>this block has been <span style="color:green">validated</span></b></span>
+			<span th:unless="${validated}"><b>this block <span style="color:red">is not validated</span></b></span>
+		</div>
+		
+		<div id="footer" style="font-family: Montserrat; font-size: 8px;">
+			BeYourChain is an Open Source Project - <a href="https://github.com/gvincenzi/byochain-certification">Visit GITHub project</a>
+		</div>
+	</div>
+	<div id="byochain" th:unless="${valid}">
+		<div id="content" style="font-family: Montserrat; font-size: 15px;">
+			<h1 style="font-family: Montserrat;">
+				<img
+					th:attr="src=@{/images/certification.png},title='Certification Logo',alt='Certification Logo'"
+					style="width: 100px;" /> Checking Certification Page</h1>
+			
+			<hr />
+			
+			<h2>Error</h2>
+			<span th:text="${error}" />
+		</div>
+	</div>
+</body>
+</html>
