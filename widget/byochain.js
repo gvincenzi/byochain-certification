@@ -113,7 +113,7 @@
 									.html("@import url('https://fonts.googleapis.com/css?family="+descriptionLogoFontFamily+"');")
 									.appendTo($('#byochain'));
 								$('<a />')
-									.attr("href",certificationServer+"api/v1/certifications/check/"+ hash + "/" + token)
+									.attr("href",certificationServer+"web/public/check?hash="+ hash)
 									.attr("target","_blank")
 									.attr("id","checkCertification")
 									.appendTo($('#byochain'));
