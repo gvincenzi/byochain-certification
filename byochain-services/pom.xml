@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.byochain</groupId>
 		<artifactId>byochain-parent</artifactId>
-		<version>2.1.0</version>
+		<version>2.2.0</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -16,6 +16,12 @@
 			<groupId>org.byochain</groupId>
 			<artifactId>byochain-model</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.4</version>
 		</dependency>
 	</dependencies>
 
