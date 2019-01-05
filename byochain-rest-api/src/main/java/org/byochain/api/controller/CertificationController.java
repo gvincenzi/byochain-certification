@@ -5,8 +5,6 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.byochain.api.enumeration.ByoChainApiExceptionEnum;
 import org.byochain.api.enumeration.ByoChainApiResponseEnum;
 import org.byochain.api.exception.ByoChainApiException;
@@ -44,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 /**
  * BlockController : A REST controller containing all possible operations about BYOChain Certifications.
@@ -252,7 +249,7 @@ public class CertificationController {
 		Iterator<BlockReferer> iterator = block.getReferers().iterator();
 		while(!refererIsValid && iterator.hasNext()){
 			String refererString = iterator.next().getReferer();
-			refererIsValid = refererString.endsWith(STAR) ? referer.toLowerCase().startsWith(refererString.toLowerCase()) : referer.equalsIgnoreCase(referer);
+			refererIsValid = refererString.endsWith(STAR) ? referer.toLowerCase().startsWith(refererString.toLowerCase().substring(0, refererString.toLowerCase().length()-1)) : referer.equalsIgnoreCase(refererString);
 		}
 		
 		if(!refererIsValid){
