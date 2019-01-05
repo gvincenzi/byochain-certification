@@ -27,9 +27,11 @@ import org.byochain.services.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -157,24 +159,23 @@ public class CertificationController {
 	@ApiOperation(value = "Get a Certificate (PDF file) of the blockchain inscription",
 		    notes = "This service creates a Certificate (PDF file) of the blockchain inscription with all Block Datas")
 	@RequestMapping(value = "/admin/certificate/{hash}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-	public byte[] getInscriptionCertificate(@PathVariable("hash") String hash, HttpServletResponse response, Locale locale)
+	public ResponseEntity<byte[]> getInscriptionCertificate(@PathVariable("hash") String hash, HttpServletResponse response, Locale locale)
 			throws ByoChainException {
 		Block block = ((CertificationBlockService)blockService).getBlockByHash(hash);
 		if (block == null) {
 			throw ByoChainApiExceptionEnum.BLOCK_CONTROLLER_HASH_NOT_EXIST.getExceptionAfterServiceCall(messageSource, locale, hash);
 		}
-		byte[] createCertificate = createCertificate(response, block);
-	    return createCertificate;
+		
+	    return createCertificate(block);
 	}
 
 	/**
 	 * Internal method to create a Certificate of inscription to the blockchain (PDF file)
-	 * @param response HttpServletResponse
 	 * @param block Block
 	 * @return byte[] PDF file
 	 * @throws ByoChainException
 	 */
-	private byte[] createCertificate(HttpServletResponse response, Block block) throws ByoChainException {
+	private ResponseEntity<byte[]> createCertificate(Block block) throws ByoChainException {
 		byte[] createCertificate = null;
 		try{
 			createCertificate = certificateGenerator.createCertificate(block);
@@ -182,11 +183,14 @@ public class CertificationController {
 			throw new ByoChainException(e.getMessage());
 		}
 		
-	    String filename = block.getData().getData() + "_certificate.pdf";
-
-	    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename.replace(" ", "_"));
-	    response.setContentLength(createCertificate.length);
-		return createCertificate;
+		String filename = block.getData().getData() + "_certificate.pdf";
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setCacheControl(CacheControl.noCache().getHeaderValue());
+	    headers.setContentDispositionFormData(filename, filename);
+		ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(createCertificate, headers, HttpStatus.OK);
+		
+		return responseEntity;
 	}
 	
 	/**
@@ -200,7 +204,7 @@ public class CertificationController {
 		    notes = "This service creates a new user, realize a bolck mining and then adds a referer")
 	@RequestMapping(value = "/fast", method = RequestMethod.POST, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public byte[] fastCertification(@RequestBody CertificationFastCreationRequest request, HttpServletResponse response, Locale locale) throws ByoChainException{
+	public ResponseEntity<byte[]> fastCertification(@RequestBody CertificationFastCreationRequest request, HttpServletResponse response, Locale locale) throws ByoChainException{
 		if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
 			throw ByoChainApiExceptionEnum.ADMIN_CONTROLLER_USER_DATA_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
 		}
@@ -223,8 +227,7 @@ public class CertificationController {
 		Block block = blockService.addCertificationBlock(user, request.getName(), calendar, request.getLogo());
 		block = blockService.addReferer(request.getReferer(), block);
 		
-		byte[] createCertificate = createCertificate(response, block);
-		return createCertificate;
+		return createCertificate(block);
 	}
 	
 	/**
