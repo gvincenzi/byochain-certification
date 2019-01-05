@@ -6,6 +6,8 @@ package org.byochain.services.service.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -45,38 +47,43 @@ public class CertificateGenerator implements ICertificateGenerator {
 		PDFont fontBold = PDType1Font.COURIER_BOLD;
 
 		PDPageContentStream cos = new PDPageContentStream(document, page1);
-		
+
 		int line = 0;
-		
-		File resource = new ClassPathResource("assets/byochain.png").getFile();
+
+		InputStream initialStream = new ClassPathResource("assets/byochain.png").getInputStream();
+		File resource = new File(System.currentTimeMillis()+".tmp");
+
+		java.nio.file.Files.copy(initialStream, resource.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
 		PDImageXObject ximage = PDImageXObject.createFromFileByContent(resource, document);
 		float scale = 0.3f;
-		cos.drawImage(ximage, 20, rect.getHeight() - 50 * (++line) - ximage.getHeight() * scale , ximage.getWidth() * scale, ximage.getHeight() * scale);
+		cos.drawImage(ximage, 20, rect.getHeight() - 50 * (++line) - ximage.getHeight() * scale,
+				ximage.getWidth() * scale, ximage.getHeight() * scale);
 
 		cos.beginText();
 		cos.setFont(fontBold, 16);
 		cos.newLineAtOffset(20, rect.getHeight() - 50 * (++line) - ximage.getHeight() * scale);
 		cos.showText("Certificate of inscription in the blockchain");
 		cos.endText();
-		
+
 		float bodyOffset = rect.getHeight() - 100 - ximage.getHeight() * scale;
-		
+
 		cos.moveTo(20, bodyOffset - 20 * (++line));
 		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
 		cos.stroke();
 
-		//BLOCK INFOS
-		
+		// BLOCK INFOS
+
 		cos.beginText();
 		cos.setFont(fontBold, 12);
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 		cos.showText("Block Informations");
 		cos.endText();
-		
+
 		cos.moveTo(20, bodyOffset - 20 * (++line));
 		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
 		cos.stroke();
-		
+
 		cos.beginText();
 		cos.setFont(fontPlain, 8);
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
@@ -100,91 +107,91 @@ public class CertificateGenerator implements ICertificateGenerator {
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 		cos.showText("Expiration date : " + block.getData().getExpirationDate().getTime());
 		cos.endText();
-		
-		//MINER INFOS
+
+		// MINER INFOS
 		cos.moveTo(20, bodyOffset - 20 * (++line));
 		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
 		cos.stroke();
-		
+
 		cos.beginText();
 		cos.setFont(fontBold, 12);
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 		cos.showText("Miner Informations");
 		cos.endText();
-		
+
 		cos.moveTo(20, bodyOffset - 20 * (++line));
 		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
 		cos.stroke();
-		
+
 		cos.beginText();
 		cos.setFont(fontPlain, 8);
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 		cos.showText("User Identification Number : " + block.getMiner().getUserId());
 		cos.endText();
-		
+
 		cos.beginText();
 		cos.setFont(fontPlain, 8);
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 		cos.showText("Username : " + block.getMiner().getUsername());
 		cos.endText();
-		
-		if(StringUtils.isNotBlank(block.getMiner().getTemporaryPassword())){
+
+		if (StringUtils.isNotBlank(block.getMiner().getTemporaryPassword())) {
 			cos.beginText();
 			cos.setFont(fontPlain, 8);
 			cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 			cos.showText("Password : " + block.getMiner().getTemporaryPassword());
 			cos.endText();
-			
+
 			cos.moveTo(20, bodyOffset - 20 * (++line));
 			cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
 			cos.stroke();
-			
+
 			cos.beginText();
 			cos.setFont(fontBold, 12);
 			cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 			cos.showText("Parameters to embed widget");
 			cos.endText();
-			
+
 			cos.moveTo(20, bodyOffset - 20 * (++line));
 			cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
 			cos.stroke();
-			
+
 			cos.beginText();
 			cos.setFont(fontPlain, 8);
 			cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 			cos.showText("Hash : " + block.getHash());
 			cos.endText();
-			
+
 			cos.beginText();
 			cos.setFont(fontPlain, 8);
 			cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 			cos.showText("Username : " + block.getMiner().getUsername());
 			cos.endText();
-			
+
 			cos.beginText();
 			cos.setFont(fontPlain, 8);
 			cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 			cos.showText("Password : " + block.getMiner().getTemporaryPassword());
 			cos.endText();
 		}
-		
-		//FOOTER
+
+		// FOOTER
 		cos.moveTo(20, 100);
 		cos.lineTo(rect.getWidth() - 20, 100);
 		cos.stroke();
-		
+
 		cos.beginText();
 		cos.setFont(fontPlain, 6);
 		cos.newLineAtOffset(rect.getWidth() - 200, 80);
 		cos.showText("On behalf of the customer (authorized signature)");
 		cos.endText();
-		
+
 		cos.beginText();
 		cos.setFont(fontPlain, 6);
 		cos.newLineAtOffset(20, 80);
 		cos.showText("On behalf of the company (authorized signature) ");
 		cos.endText();
-		
+
 		cos.beginText();
 		cos.setFont(fontPlain, 6);
 		cos.newLineAtOffset(rect.getWidth() - 200, 50);
@@ -196,6 +203,7 @@ public class CertificateGenerator implements ICertificateGenerator {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		document.save(output);
 		document.close();
+		resource.delete();
 		return output.toByteArray();
 	}
 }

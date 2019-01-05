@@ -47,7 +47,7 @@ The MariaDB will be initialized by the following 2 SQL scripts : [Tables SQL ini
 To start the BYOChain server, you must deploy the WAR builded by Maven (module byochain-rest-api) in your Application Server, or launch it directly by command line:
 
 ```
-java -Dspring.profiles.active=production -jar byochain-rest-api/target/byochain-rest-api-1.1.0-SNAPSHOT.war
+java -Dspring.profiles.active=production -jar byochain-rest-api/target/byochain-rest-api-2.2.0.jar
 ```
 
 ### Spring Profile

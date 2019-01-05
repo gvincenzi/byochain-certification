@@ -2,7 +2,6 @@ package org.byochain.services.service;
 
 import java.io.IOException;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.byochain.model.entity.Block;
 
 /**

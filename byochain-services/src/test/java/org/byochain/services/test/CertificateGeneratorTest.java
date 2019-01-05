@@ -1,6 +1,5 @@
 package org.byochain.services.test;
 
-import java.io.FileOutputStream;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
