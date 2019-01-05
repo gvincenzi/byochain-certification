@@ -1,5 +1,7 @@
 package org.byochain.api.config;
 
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -7,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
 
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -33,9 +36,10 @@ public class SwaggerConfig {
 	
     @Bean
     public Docket api() { 
-        return new Docket(DocumentationType.SWAGGER_2)  
-          .select()                                  
-          .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))          
+        return new Docket(DocumentationType.SWAGGER_2)
+          .ignoredParameterTypes(Locale.class, Authentication.class)
+          .select()                              
+          .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))  
           .paths(PathSelectors.ant("/api/**"))                          
           .build()                                           
           .apiInfo( getMetadata() );

@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * BlockController : A REST controller containing all possible operations about BYOChain Certifications.
@@ -159,7 +160,7 @@ public class CertificationController {
 	@ApiOperation(value = "Get a Certificate (PDF file) of the blockchain inscription",
 		    notes = "This service creates a Certificate (PDF file) of the blockchain inscription with all Block Datas")
 	@RequestMapping(value = "/admin/certificate/{hash}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-	public ResponseEntity<byte[]> getInscriptionCertificate(@PathVariable("hash") String hash, HttpServletResponse response, Locale locale)
+	public ResponseEntity<byte[]> getInscriptionCertificate(@PathVariable("hash") String hash, Locale locale)
 			throws ByoChainException {
 		Block block = ((CertificationBlockService)blockService).getBlockByHash(hash);
 		if (block == null) {
@@ -204,7 +205,7 @@ public class CertificationController {
 		    notes = "This service creates a new user, realize a bolck mining and then adds a referer")
 	@RequestMapping(value = "/fast", method = RequestMethod.POST, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	@ResponseStatus(value = HttpStatus.CREATED)
-	public ResponseEntity<byte[]> fastCertification(@RequestBody CertificationFastCreationRequest request, HttpServletResponse response, Locale locale) throws ByoChainException{
+	public ResponseEntity<byte[]> fastCertification(@RequestBody CertificationFastCreationRequest request, Locale locale) throws ByoChainException{
 		if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
 			throw ByoChainApiExceptionEnum.ADMIN_CONTROLLER_USER_DATA_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
 		}
