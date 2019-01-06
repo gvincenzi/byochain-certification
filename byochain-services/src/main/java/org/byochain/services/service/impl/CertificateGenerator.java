@@ -3,11 +3,16 @@
  */
 package org.byochain.services.service.impl;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.StandardCopyOption;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -21,6 +26,10 @@ import org.byochain.model.entity.Block;
 import org.byochain.services.service.ICertificateGenerator;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+
+import uk.org.okapibarcode.backend.HumanReadableLocation;
+import uk.org.okapibarcode.backend.Pdf417;
+import uk.org.okapibarcode.output.Java2DRenderer;
 
 /**
  * Implementation of {@link ICertificateGenerator}
@@ -80,10 +89,6 @@ public class CertificateGenerator implements ICertificateGenerator {
 		cos.showText("Block Informations");
 		cos.endText();
 
-		cos.moveTo(20, bodyOffset - 20 * (++line));
-		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
-		cos.stroke();
-
 		cos.beginText();
 		cos.setFont(fontPlain, 8);
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
@@ -118,10 +123,6 @@ public class CertificateGenerator implements ICertificateGenerator {
 		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
 		cos.showText("Miner Informations");
 		cos.endText();
-
-		cos.moveTo(20, bodyOffset - 20 * (++line));
-		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
-		cos.stroke();
 
 		cos.beginText();
 		cos.setFont(fontPlain, 8);
@@ -174,7 +175,45 @@ public class CertificateGenerator implements ICertificateGenerator {
 			cos.showText("Password : " + block.getMiner().getTemporaryPassword());
 			cos.endText();
 		}
+		
+		// BARCODE
+		cos.moveTo(20, bodyOffset - 20 * (++line));
+		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line));
+		cos.stroke();
+		
+		cos.beginText();
+		cos.setFont(fontBold, 12);
+		cos.newLineAtOffset(20, bodyOffset - 20 * (++line));
+		cos.showText("Barcode for offline light check (PDF417)");
+		cos.endText();
 
+		Pdf417 barcode = new Pdf417();
+		barcode.setDataColumns(15);
+		barcode.setHumanReadableLocation(HumanReadableLocation.BOTTOM);
+		barcode.setContent("BYOChain Certification Check\n\nIssued to : " + block.getData().getData() + "\nBlock Hash : " + block.getHash() + "\nPrevious Block Hash : " + block.getPreviousHash() + "\nExpiration date : " + block.getData().getExpirationDate().getTime());
+		
+		int width = barcode.getWidth();
+		int height = barcode.getHeight();
+
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+		Graphics2D g2d = image.createGraphics();
+		Java2DRenderer renderer = new Java2DRenderer(g2d, 1, Color.WHITE, Color.BLACK);
+		renderer.render(barcode);
+
+		File resourceBarcode = new File(System.currentTimeMillis()+".tmp");
+		ImageIO.write(image, "png", resourceBarcode);
+		
+		PDImageXObject ximageBarcode = PDImageXObject.createFromFileByContent(resourceBarcode, document);
+		float scaleBarcode = 1f;
+		cos.drawImage(ximageBarcode, rect.getWidth()/2 - ximageBarcode.getWidth() * scaleBarcode /2, bodyOffset - 20 * (++line) - ximageBarcode.getHeight() * scaleBarcode,
+				ximageBarcode.getWidth() * scaleBarcode, ximageBarcode.getHeight() * scaleBarcode);
+		
+		resourceBarcode.delete();
+
+//		cos.moveTo(20, bodyOffset - 20 * (++line) - ximageBarcode.getHeight() * scaleBarcode);
+//		cos.lineTo(rect.getWidth() - 20, bodyOffset - 20 * (line) - ximageBarcode.getHeight() * scaleBarcode);
+//		cos.stroke();
+		
 		// FOOTER
 		cos.moveTo(20, 100);
 		cos.lineTo(rect.getWidth() - 20, 100);
