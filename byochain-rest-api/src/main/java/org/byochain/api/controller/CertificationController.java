@@ -1,5 +1,6 @@
 package org.byochain.api.controller;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Locale;
@@ -10,19 +11,25 @@ import org.byochain.api.exception.ByoChainApiException;
 import org.byochain.api.request.BlockDataUpdateRequest;
 import org.byochain.api.request.BlockRefererAddRequest;
 import org.byochain.api.request.BlockRefererRemoveRequest;
+import org.byochain.api.request.CertificationFastCreationRequest;
 import org.byochain.api.response.ByoChainApiResponse;
 import org.byochain.commons.exception.ByoChainException;
 import org.byochain.model.entity.Block;
 import org.byochain.model.entity.BlockReferer;
 import org.byochain.model.entity.User;
 import org.byochain.services.exception.ByoChainServiceException;
+import org.byochain.services.service.ICertificateGenerator;
 import org.byochain.services.service.ICertificationBlockService;
 import org.byochain.services.service.impl.CertificationBlockService;
 import org.byochain.services.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
@@ -57,6 +65,9 @@ public class CertificationController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private ICertificateGenerator certificateGenerator;
 	
 	/**
 	 * This service check the block by its hash and temporary token
@@ -137,6 +148,87 @@ public class CertificationController {
 	}
 	
 	/**
+	 * This service enable a block by its hash
+	 * @param hash String containing the hash to search in database
+	 * @param locale Locale object (by framework)
+	 * @return {@link ByoChainApiResponse}
+	 * @throws {@link ByoChainException}
+	 */
+	@ApiOperation(value = "Get a Certificate (PDF file) of the blockchain inscription",
+		    notes = "This service creates a Certificate (PDF file) of the blockchain inscription with all Block Datas")
+	@RequestMapping(value = "/admin/certificate/{hash}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public ResponseEntity<byte[]> getInscriptionCertificate(@PathVariable("hash") String hash, Locale locale)
+			throws ByoChainException {
+		Block block = ((CertificationBlockService)blockService).getBlockByHash(hash);
+		if (block == null) {
+			throw ByoChainApiExceptionEnum.BLOCK_CONTROLLER_HASH_NOT_EXIST.getExceptionAfterServiceCall(messageSource, locale, hash);
+		}
+		
+	    return createCertificate(block);
+	}
+
+	/**
+	 * Internal method to create a Certificate of inscription to the blockchain (PDF file)
+	 * @param block Block
+	 * @return byte[] PDF file
+	 * @throws ByoChainException
+	 */
+	private ResponseEntity<byte[]> createCertificate(Block block) throws ByoChainException {
+		byte[] createCertificate = null;
+		try{
+			createCertificate = certificateGenerator.createCertificate(block);
+		}catch(IOException e){
+			throw new ByoChainException(e.getMessage());
+		}
+		
+		String filename = block.getData().getData() + "_certificate.pdf";
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setCacheControl(CacheControl.noCache().getHeaderValue());
+	    headers.setContentDispositionFormData(filename, filename);
+		ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(createCertificate, headers, HttpStatus.OK);
+		
+		return responseEntity;
+	}
+	
+	/**
+	 * This service will be used for a "fast creation" of a new Certification
+	 * @param request CertificationFastCreationResponse
+	 * @param locale
+	 * @return
+	 * @throws ByoChainException 
+	 */
+	@ApiOperation(value = "Fast inscription in byochain",
+		    notes = "This service creates a new user, realize a bolck mining and then adds a referer")
+	@RequestMapping(value = "/fast", method = RequestMethod.POST, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public ResponseEntity<byte[]> fastCertification(@RequestBody CertificationFastCreationRequest request, Locale locale) throws ByoChainException{
+		if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
+			throw ByoChainApiExceptionEnum.ADMIN_CONTROLLER_USER_DATA_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
+		}
+		
+		if (request.getName() == null || request.getName().isEmpty() || request.getLogo() == null || request.getExpirationDate() == null) {
+			throw ByoChainApiExceptionEnum.BLOCK_CONTROLLER_DATA_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
+		}
+		
+		if (request.getReferer() == null || request.getReferer().isEmpty()) {
+			throw ByoChainApiExceptionEnum.CERTIFICATIONS_CONTROLLER_REFERER_MANDATORY.getExceptionBeforeServiceCall(messageSource, locale);
+		}
+
+		User user = new User();
+		user.setUsername(request.getUsername());
+		user = userService.addUser(user);
+		
+		Calendar calendar = Calendar.getInstance(locale);
+		calendar.setTime(request.getExpirationDate());
+		
+		Block block = blockService.addCertificationBlock(user, request.getName(), calendar, request.getLogo());
+		block = blockService.addReferer(request.getReferer(), block);
+		
+		return createCertificate(block);
+	}
+	
+	/**
 	 * This administration service retrieves temporary token for a number of days
 	 * @param hash String containing the hash to search in database
 	 * @param token String containing the temporary token
@@ -157,7 +249,7 @@ public class CertificationController {
 		Iterator<BlockReferer> iterator = block.getReferers().iterator();
 		while(!refererIsValid && iterator.hasNext()){
 			String refererString = iterator.next().getReferer();
-			refererIsValid = refererString.endsWith(STAR) ? referer.toLowerCase().startsWith(refererString.toLowerCase()) : referer.equalsIgnoreCase(referer);
+			refererIsValid = refererString.endsWith(STAR) ? referer.toLowerCase().startsWith(refererString.toLowerCase().substring(0, refererString.toLowerCase().length()-1)) : referer.equalsIgnoreCase(refererString);
 		}
 		
 		if(!refererIsValid){
